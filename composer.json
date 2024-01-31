@@ -25,6 +25,12 @@
             "Fschmtt\\Keycloak\\Test\\": "tests"
         }
     },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://satis.castoredc.net"
+        }
+    ],
     "license": "mit",
     "authors": [
         {
