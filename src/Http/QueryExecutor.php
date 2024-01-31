@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Fschmtt\Keycloak\Http;
 
+use Fschmtt\Keycloak\Client\ClientInterface;
 use Fschmtt\Keycloak\Json\JsonDecoder;
 use Fschmtt\Keycloak\Serializer\Serializer;
 
 class QueryExecutor
 {
     public function __construct(
-        private readonly Client $client,
+        private readonly ClientInterface $client,
         private readonly Serializer $serializer
     ) {
     }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Fschmtt\Keycloak;
 
-use Fschmtt\Keycloak\Http\Client;
+use Fschmtt\Keycloak\Client\ClientFactory;
+use Fschmtt\Keycloak\Client\ClientInterface;
+use Fschmtt\Keycloak\Client\ClientType;
 use Fschmtt\Keycloak\Http\CommandExecutor;
 use Fschmtt\Keycloak\Http\PropertyFilter;
 use Fschmtt\Keycloak\Http\QueryExecutor;
@@ -19,12 +21,11 @@ use Fschmtt\Keycloak\Resource\Roles;
 use Fschmtt\Keycloak\Resource\ServerInfo;
 use Fschmtt\Keycloak\Resource\Users;
 use Fschmtt\Keycloak\Serializer\Factory as SerializerFactory;
-use GuzzleHttp\Client as GuzzleClient;
 
 class Keycloak
 {
     private ?string $version = null;
-    private Client $client;
+    private ClientInterface $client;
     private PropertyFilter $propertyFilter;
     private CommandExecutor $commandExecutor;
     private QueryExecutor $queryExecutor;
@@ -34,8 +35,10 @@ class Keycloak
         private readonly string $username,
         private readonly string $password,
         private readonly TokenStorageInterface $tokenStorage = new InMemory(),
+        private readonly ClientType $clientType = ClientType::ADMIN,
+        private readonly string $realmName = 'master',
     ) {
-        $this->client = new Client($this, new GuzzleClient(), $this->tokenStorage);
+        $this->client = ClientFactory::create($this, $this->tokenStorage, $this->clientType, $this->realmName);
         $this->propertyFilter = new PropertyFilter($this->version);
         $this->commandExecutor = new CommandExecutor($this->client, $this->propertyFilter);
         $this->queryExecutor = new QueryExecutor($this->client, (new SerializerFactory())->create());
@@ -54,6 +57,11 @@ class Keycloak
     public function getPassword(): string
     {
         return $this->password;
+    }
+
+    public function getRealmName(): string
+    {
+        return $this->realmName;
     }
 
     public function getVersion(): string
