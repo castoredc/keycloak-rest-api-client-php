@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Fschmtt\Keycloak\Test\Unit\Http;
+namespace Fschmtt\Keycloak\Test\Unit\Client;
 
 use DateTimeImmutable;
-use Fschmtt\Keycloak\Http\Client;
+use Fschmtt\Keycloak\Client\ClientType;
+use Fschmtt\Keycloak\Client\ConfidentialClient;
 use Fschmtt\Keycloak\Keycloak;
+use Fschmtt\Keycloak\OAuth\TokenStorage\InMemory;
 use Fschmtt\Keycloak\OAuth\TokenStorage\InMemory as InMemoryTokenStorage;
 use Fschmtt\Keycloak\Test\Unit\TokenGenerator;
 use GuzzleHttp\ClientInterface;
@@ -15,8 +17,8 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(Client::class)]
-class ClientTest extends TestCase
+#[CoversClass(ConfidentialClient::class)]
+final class ConfidentialClientTest extends TestCase
 {
     use TokenGenerator;
 
@@ -28,6 +30,9 @@ class ClientTest extends TestCase
             'http://keycloak:8080',
             'admin',
             'admin',
+            new InMemory(),
+            ClientType::CONFIDENTIAL,
+            'master'
         );
     }
 
@@ -66,7 +71,7 @@ class ClientTest extends TestCase
                 $realmsResponse,
             );
 
-        $client = new Client($this->keycloak, $httpClient, new InMemoryTokenStorage());
+        $client = new ConfidentialClient($this->keycloak, $httpClient, new InMemoryTokenStorage());
         $client->request('GET', '/admin/realms');
 
         static::assertTrue($client->isAuthorized());
